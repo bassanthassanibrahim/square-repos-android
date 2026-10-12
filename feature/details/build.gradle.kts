@@ -5,3 +5,7 @@ plugins {
 android {
     namespace = "com.bassant.squarerepos.feature.details"
 }
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+}

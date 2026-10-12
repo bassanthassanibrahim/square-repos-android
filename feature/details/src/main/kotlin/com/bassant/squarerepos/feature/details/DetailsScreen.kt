@@ -17,9 +17,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.SearchOff
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Card
@@ -31,6 +31,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -38,11 +40,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -58,6 +60,7 @@ import com.bassant.squarerepos.core.designsystem.component.sharedBoundsIfAvailab
 import com.bassant.squarerepos.core.designsystem.theme.SquareReposTheme
 import com.bassant.squarerepos.core.designsystem.util.formatCount
 import com.bassant.squarerepos.core.domain.model.Repo
+import kotlinx.coroutines.launch
 
 /** Stateful entry point: connects [DetailsViewModel] to the stateless [DetailsScreen]. */
 @Composable
@@ -79,9 +82,17 @@ internal fun DetailsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val noBrowserMessage = stringResource(R.string.details_no_browser)
+    val shareTitle = stringResource(R.string.details_share_chooser)
+    val openInBrowser: (String) -> Unit = { url ->
+        if (!context.openInBrowser(url)) scope.launch { snackbarHostState.showSnackbar(noBrowserMessage) }
+    }
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -96,11 +107,10 @@ internal fun DetailsScreen(
                 },
                 actions = {
                     if (uiState is DetailsUiState.Success) {
-                        IconButton(onClick = { uriHandler.openSafely(uiState.repo.htmlUrl) }) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.OpenInNew,
-                                contentDescription = stringResource(R.string.details_open_in_browser),
-                            )
+                        IconButton(
+                            onClick = { context.shareRepo(uiState.repo.fullName, uiState.repo.htmlUrl, shareTitle) },
+                        ) {
+                            Icon(Icons.Rounded.Share, contentDescription = stringResource(R.string.details_share))
                         }
                     }
                 },
@@ -122,16 +132,11 @@ internal fun DetailsScreen(
                 )
                 is DetailsUiState.Success -> DetailsContent(
                     repo = uiState.repo,
-                    onOpenInBrowser = { uriHandler.openSafely(uiState.repo.htmlUrl) },
+                    onOpenInBrowser = { openInBrowser(uiState.repo.htmlUrl) },
                 )
             }
         }
     }
-}
-
-/** Opening a link must never crash the app (e.g. on a device without a browser). */
-private fun UriHandler.openSafely(url: String) {
-    runCatching { openUri(url) }
 }
 
 @Composable
