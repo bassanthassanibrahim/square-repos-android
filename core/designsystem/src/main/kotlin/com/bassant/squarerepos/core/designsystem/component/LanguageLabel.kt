@@ -9,14 +9,31 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.bassant.squarerepos.core.designsystem.theme.LanguageColors
+import com.bassant.squarerepos.core.designsystem.util.withMinContrast
 
-/** Small colored dot + language name, like on GitHub. */
+/**
+ * Small colored dot + language name, like on GitHub.
+ *
+ * GitHub's language colors were picked for a white page, so some vanish on our cards (dark red Ruby
+ * in dark mode, yellow JavaScript in light mode). The dot is nudged until it is clearly visible on
+ * [background], keeping its hue.
+ */
 @Composable
-fun LanguageLabel(language: String, modifier: Modifier = Modifier) {
+fun LanguageLabel(
+    language: String,
+    modifier: Modifier = Modifier,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+) {
+    val fallback = MaterialTheme.colorScheme.outline
+    val dotColor = remember(language, background, fallback) {
+        (LanguageColors[language.lowercase()] ?: fallback).withMinContrast(background)
+    }
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -25,10 +42,7 @@ fun LanguageLabel(language: String, modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .size(10.dp)
-                .background(
-                    color = LanguageColors[language.lowercase()] ?: MaterialTheme.colorScheme.outline,
-                    shape = CircleShape,
-                ),
+                .background(color = dotColor, shape = CircleShape),
         )
         Text(
             text = language,

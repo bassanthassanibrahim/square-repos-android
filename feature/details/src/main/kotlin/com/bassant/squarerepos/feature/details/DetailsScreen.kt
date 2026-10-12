@@ -247,7 +247,7 @@ private fun StatsRow(repo: Repo, modifier: Modifier = Modifier) {
                 icon = null,
                 label = stringResource(R.string.details_language),
                 modifier = Modifier.weight(1f),
-            ) { LanguageLabel(language) }
+            ) { LanguageLabel(language, background = MaterialTheme.colorScheme.surfaceContainer) }
         }
     }
 }
