@@ -1,0 +1,18 @@
+# Gradle / build
+.gradle/
+build/
+/captures
+.externalNativeBuild
+.cxx
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Local configuration (SDK path, GitHub token) – never commit
+local.properties
+
+# Keystores
+*.jks
+*.keystore
