@@ -22,3 +22,11 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "SquareRepos"
+
+include(":core:domain")
+include(":core:network")
+include(":core:database")
+include(":core:data")
+include(":core:designsystem")
+include(":feature:repositories")
+include(":feature:details")

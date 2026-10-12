@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="repos_title">Square repositories</string>
+    <string name="repos_scroll_to_top">Scroll to top</string>
+
+    <string name="repos_empty_title">No repositories yet</string>
+    <string name="repos_empty_message">Square hasn\'t published any public repositories. Pull down to try again.</string>
+    <plurals name="repos_end_of_list">
+        <item quantity="one">You\'ve reached the end · %1$d repository</item>
+        <item quantity="other">You\'ve reached the end · %1$d repositories</item>
+    </plurals>
+
+    <string name="repos_error_title">Something went wrong</string>
+    <string name="repos_error_no_connection">You\'re offline. Check your connection and try again.</string>
+    <string name="repos_error_rate_limited">GitHub\'s request limit was reached. Please try again later.</string>
+    <string name="repos_error_rate_limited_until">GitHub\'s request limit was reached. Try again after %1$s.</string>
+    <string name="repos_error_server">GitHub is having trouble right now (error %1$d).</string>
+    <string name="repos_error_unknown">An unexpected error happened.</string>
+    <string name="repos_showing_saved">Couldn\'t refresh. Showing saved repositories.</string>
+    <string name="repos_retry">Retry</string>
+</resources>
