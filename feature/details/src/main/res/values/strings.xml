@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="details_back">Back</string>
+    <string name="details_open_in_browser">View on GitHub</string>
+    <string name="details_no_description">No description provided.</string>
+    <string name="details_stars">Stars</string>
+    <string name="details_forks">Forks</string>
+    <string name="details_language">Language</string>
+    <string name="details_not_found_title">Repository not found</string>
+    <string name="details_not_found_message">It may have been removed from GitHub. Go back and refresh the list.</string>
+</resources>
