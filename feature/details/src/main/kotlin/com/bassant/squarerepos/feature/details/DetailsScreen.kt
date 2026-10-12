@@ -18,9 +18,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,10 +39,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -152,12 +156,44 @@ private fun DetailsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         HeaderCard(repo)
-        StatsRow(repo)
-        OutlinedButton(onClick = onOpenInBrowser, modifier = Modifier.fillMaxWidth()) {
-            Icon(Icons.Rounded.Public, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.details_open_in_browser))
-        }
+        StatsRow(repo, Modifier.enterAfterSharedCard(delayMillis = STATS_ENTER_DELAY_MS))
+        OpenInBrowserButton(
+            onClick = onOpenInBrowser,
+            modifier = Modifier.enterAfterSharedCard(delayMillis = ACTIONS_ENTER_DELAY_MS),
+        )
+    }
+}
+
+@Composable
+private fun OpenInBrowserButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    OutlinedButton(onClick = onClick, modifier = modifier.fillMaxWidth()) {
+        Icon(Icons.Rounded.Public, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(stringResource(R.string.details_open_in_browser))
+    }
+}
+
+// The header card morphs from the list (shared bounds) as soon as the repository is loaded.
+// Everything below it waits for that movement, then fades and slides up in order:
+// stats first, then the actions.
+private const val STATS_ENTER_DELAY_MS = 200
+private const val ACTIONS_ENTER_DELAY_MS = 280
+
+/**
+ * Fades and slides this element in [delayMillis] after it first appears, so it never draws over
+ * the moving header card. Plays once per screen (not again after rotation).
+ */
+@Composable
+private fun Modifier.enterAfterSharedCard(delayMillis: Int): Modifier {
+    var played by rememberSaveable { mutableStateOf(false) }
+    val progress = remember { Animatable(if (played) 1f else 0f) }
+    LaunchedEffect(Unit) {
+        progress.animateTo(1f, tween(durationMillis = 300, delayMillis = delayMillis, easing = FastOutSlowInEasing))
+        played = true
+    }
+    return graphicsLayer {
+        alpha = progress.value
+        translationY = (1f - progress.value) * 24.dp.toPx()
     }
 }
 
@@ -193,8 +229,8 @@ private fun HeaderCard(repo: Repo) {
 }
 
 @Composable
-private fun StatsRow(repo: Repo) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+private fun StatsRow(repo: Repo, modifier: Modifier = Modifier) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = modifier.fillMaxWidth()) {
         StatTile(
             icon = Icons.Rounded.Star,
             label = stringResource(R.string.details_stars),
