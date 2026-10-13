@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The repository cache can always be downloaded again, so it is excluded from backups. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="database" path="square-repos.db" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" path="square-repos.db" />
+    </device-transfer>
+</data-extraction-rules>
