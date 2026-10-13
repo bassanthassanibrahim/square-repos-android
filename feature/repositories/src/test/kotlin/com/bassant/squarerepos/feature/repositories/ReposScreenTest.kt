@@ -46,6 +46,25 @@ class ReposScreenTest {
     }
 
     @Test
+    fun `refresh Loading with existing items still shows the list`() {
+        // Happens when Room invalidates the list (e.g. after a bookmark change): the items must stay
+        // on screen instead of being replaced by the skeleton, or the back transition has no target.
+        val notLoading = LoadState.NotLoading(endOfPaginationReached = true)
+        val pagingData = PagingData.from(
+            data = listOf(okhttp, picasso),
+            sourceLoadStates = LoadStates(LoadState.Loading, notLoading, notLoading),
+        )
+        composeRule.setContent {
+            SquareReposTheme {
+                ReposScreen(repos = flowOf(pagingData).collectAsLazyPagingItems(), onRepoClick = {})
+            }
+        }
+
+        composeRule.onNodeWithText("okhttp").assertIsDisplayed()
+        composeRule.onNodeWithText("picasso").assertIsDisplayed()
+    }
+
+    @Test
     fun `failed refresh with saved data says the device is offline`() {
         showSavedDataAfterRefreshError(DataError.NoConnection())
 
