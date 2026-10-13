@@ -1,5 +1,6 @@
 package com.bassant.squarerepos.feature.repositories
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.bassant.squarerepos.core.domain.error.DataError
@@ -18,4 +19,12 @@ internal fun errorMessage(error: Throwable): String = when (error) {
         ?: stringResource(R.string.repos_error_rate_limited)
     is DataError.Server -> stringResource(R.string.repos_error_server, error.code)
     else -> stringResource(R.string.repos_error_unknown)
+}
+
+/** Snackbar text when a refresh failed but saved repositories are still on screen. */
+@StringRes
+internal fun savedDataMessage(error: Throwable): Int = when (error) {
+    is DataError.NoConnection -> R.string.repos_showing_saved_offline
+    is DataError.RateLimited -> R.string.repos_showing_saved_rate_limited
+    else -> R.string.repos_showing_saved
 }
