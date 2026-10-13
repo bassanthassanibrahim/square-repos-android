@@ -91,9 +91,9 @@ internal fun ReposScreen(
     val refreshState = repos.loadState.refresh
     val isEmpty = repos.itemCount == 0
 
-    // Offline mode: a refresh failed but we still have saved data → tell the user, offer a retry.
+    // Offline mode: a refresh failed but we still have saved data → say why, offer a retry.
     if (refreshState is LoadState.Error && !isEmpty) {
-        val message = stringResource(R.string.repos_showing_saved)
+        val message = stringResource(savedDataMessage(refreshState.error))
         val retryLabel = stringResource(R.string.repos_retry)
         LaunchedEffect(refreshState) {
             val result = snackbarHostState.showSnackbar(message, retryLabel, duration = SnackbarDuration.Long)

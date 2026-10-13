@@ -17,5 +17,7 @@
     <string name="repos_error_server">GitHub is having trouble right now (error %1$d).</string>
     <string name="repos_error_unknown">An unexpected error happened.</string>
     <string name="repos_showing_saved">Couldn\'t refresh. Showing saved repositories.</string>
+    <string name="repos_showing_saved_offline">You\'re offline. Showing saved repositories.</string>
+    <string name="repos_showing_saved_rate_limited">GitHub\'s request limit was reached. Showing saved repositories.</string>
     <string name="repos_retry">Retry</string>
 </resources>
