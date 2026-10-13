@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.bassant.squarerepos.core.domain.usecase.ObserveRepoUseCase
+import com.bassant.squarerepos.core.domain.usecase.SetBookmarkUseCase
 import com.bassant.squarerepos.feature.details.navigation.DetailsDestination
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -16,10 +17,12 @@ class DetailsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val store = FakeStore(listOf(testRepo(id = 1)))
+    private val bookmarkRepository = FakeBookmarkRepository(store)
 
     private fun viewModel(repoId: Long = 1) = DetailsViewModel(
         savedStateHandle = SavedStateHandle(mapOf(DetailsDestination.ARG_REPO_ID to repoId)),
         observeRepo = ObserveRepoUseCase(FakeRepoRepository(store)),
+        setBookmark = SetBookmarkUseCase(bookmarkRepository),
     )
 
     @Test

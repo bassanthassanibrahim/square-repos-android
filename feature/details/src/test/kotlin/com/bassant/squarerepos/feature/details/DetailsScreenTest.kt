@@ -19,7 +19,7 @@ class DetailsScreenTest {
     fun `shows name and description`() {
         composeRule.setContent {
             SquareReposTheme {
-                DetailsScreen(uiState = DetailsUiState.Success(testRepo()), onBack = {})
+                DetailsScreen(uiState = DetailsUiState.Success(testRepo()), onBack = {}, onBookmarkClick = {})
             }
         }
 
@@ -31,7 +31,7 @@ class DetailsScreenTest {
     fun `missing repository shows not found message`() {
         composeRule.setContent {
             SquareReposTheme {
-                DetailsScreen(uiState = DetailsUiState.NotFound, onBack = {})
+                DetailsScreen(uiState = DetailsUiState.NotFound, onBack = {}, onBookmarkClick = {})
             }
         }
 
