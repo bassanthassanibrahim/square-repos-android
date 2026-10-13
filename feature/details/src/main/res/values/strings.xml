@@ -5,6 +5,8 @@
     <string name="details_share">Share</string>
     <string name="details_share_chooser">Share repository</string>
     <string name="details_no_browser">No app found to open the link.</string>
+    <string name="details_add_bookmark">Add to bookmarks</string>
+    <string name="details_remove_bookmark">Remove from bookmarks</string>
     <string name="details_no_description">No description provided.</string>
     <string name="details_stars">Stars</string>
     <string name="details_forks">Forks</string>

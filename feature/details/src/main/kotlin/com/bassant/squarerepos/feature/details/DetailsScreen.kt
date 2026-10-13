@@ -1,8 +1,15 @@
 package com.bassant.squarerepos.feature.details
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,6 +30,8 @@ import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,7 +58,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -57,6 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bassant.squarerepos.core.designsystem.component.AnimatedBookmarkIcon
 import com.bassant.squarerepos.core.designsystem.component.LanguageLabel
 import com.bassant.squarerepos.core.designsystem.component.MessageState
 import com.bassant.squarerepos.core.designsystem.component.SharedElementKeys
@@ -76,6 +89,7 @@ internal fun DetailsRoute(
     DetailsScreen(
         uiState = uiState,
         onBack = onBack,
+        onBookmarkClick = viewModel::onBookmarkClick,
     )
 }
 
@@ -84,6 +98,7 @@ internal fun DetailsRoute(
 internal fun DetailsScreen(
     uiState: DetailsUiState,
     onBack: () -> Unit,
+    onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -136,6 +151,7 @@ internal fun DetailsScreen(
                 )
                 is DetailsUiState.Success -> DetailsContent(
                     repo = uiState.repo,
+                    onBookmarkClick = onBookmarkClick,
                     onOpenInBrowser = { openInBrowser(uiState.repo.htmlUrl) },
                 )
             }
@@ -146,6 +162,7 @@ internal fun DetailsScreen(
 @Composable
 private fun DetailsContent(
     repo: Repo,
+    onBookmarkClick: () -> Unit,
     onOpenInBrowser: () -> Unit,
 ) {
     Column(
@@ -157,10 +174,13 @@ private fun DetailsContent(
     ) {
         HeaderCard(repo)
         StatsRow(repo, Modifier.enterAfterSharedCard(delayMillis = STATS_ENTER_DELAY_MS))
-        OpenInBrowserButton(
-            onClick = onOpenInBrowser,
+        Column(
             modifier = Modifier.enterAfterSharedCard(delayMillis = ACTIONS_ENTER_DELAY_MS),
-        )
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            BookmarkButton(isBookmarked = repo.isBookmarked, onClick = onBookmarkClick)
+            OpenInBrowserButton(onClick = onOpenInBrowser)
+        }
     }
 }
 
@@ -303,6 +323,47 @@ private fun AnimatedCount(target: Int) {
     )
 }
 
+/**
+ * Full-width bookmark toggle. Micro-interactions: icon pop, label slide, color change and a
+ * light haptic tick, so the user clearly feels the state change.
+ */
+@Composable
+private fun BookmarkButton(isBookmarked: Boolean, onClick: () -> Unit) {
+    val haptics = LocalHapticFeedback.current
+    val containerColor by animateColorAsState(
+        targetValue = if (isBookmarked) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primary,
+        label = "bookmarkContainer",
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (isBookmarked) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onPrimary,
+        label = "bookmarkContent",
+    )
+    Button(
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        },
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+    ) {
+        AnimatedBookmarkIcon(isBookmarked = isBookmarked)
+        Spacer(Modifier.width(8.dp))
+        AnimatedContent(
+            targetState = isBookmarked,
+            transitionSpec = {
+                (slideInVertically { it } + fadeIn()) togetherWith (slideOutVertically { -it } + fadeOut())
+            },
+            label = "bookmarkLabel",
+        ) { bookmarked ->
+            Text(
+                stringResource(if (bookmarked) R.string.details_remove_bookmark else R.string.details_add_bookmark),
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun DetailsScreenPreview() {
@@ -322,6 +383,7 @@ private fun DetailsScreenPreview() {
                 ),
             ),
             onBack = {},
+            onBookmarkClick = {},
         )
     }
 }

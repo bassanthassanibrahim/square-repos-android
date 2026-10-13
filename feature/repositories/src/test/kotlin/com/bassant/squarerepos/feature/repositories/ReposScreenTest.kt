@@ -25,7 +25,7 @@ class ReposScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `shows name and stars, and opens details on click`() {
+    fun `shows name, stars and bookmark badge, and opens details on click`() {
         var openedId: Long? = null
         composeRule.setContent {
             SquareReposTheme {
@@ -38,9 +38,30 @@ class ReposScreenTest {
 
         composeRule.onNodeWithText("okhttp").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("46123 stars").assertIsDisplayed()
+        // Only okhttp is bookmarked, so exactly one badge is shown.
+        composeRule.onNodeWithContentDescription("Bookmarked").assertIsDisplayed()
 
         composeRule.onNodeWithText("picasso").performClick()
         assertEquals(2L, openedId)
+    }
+
+    @Test
+    fun `refresh Loading with existing items still shows the list`() {
+        // Happens when Room invalidates the list (e.g. after a bookmark change): the items must stay
+        // on screen instead of being replaced by the skeleton, or the back transition has no target.
+        val notLoading = LoadState.NotLoading(endOfPaginationReached = true)
+        val pagingData = PagingData.from(
+            data = listOf(okhttp, picasso),
+            sourceLoadStates = LoadStates(LoadState.Loading, notLoading, notLoading),
+        )
+        composeRule.setContent {
+            SquareReposTheme {
+                ReposScreen(repos = flowOf(pagingData).collectAsLazyPagingItems(), onRepoClick = {})
+            }
+        }
+
+        composeRule.onNodeWithText("okhttp").assertIsDisplayed()
+        composeRule.onNodeWithText("picasso").assertIsDisplayed()
     }
 
     @Test
