@@ -25,7 +25,7 @@ class ReposScreenTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun `shows name and stars, and opens details on click`() {
+    fun `shows name, stars and bookmark badge, and opens details on click`() {
         var openedId: Long? = null
         composeRule.setContent {
             SquareReposTheme {
@@ -38,6 +38,8 @@ class ReposScreenTest {
 
         composeRule.onNodeWithText("okhttp").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("46123 stars").assertIsDisplayed()
+        // Only okhttp is bookmarked, so exactly one badge is shown.
+        composeRule.onNodeWithContentDescription("Bookmarked").assertIsDisplayed()
 
         composeRule.onNodeWithText("picasso").performClick()
         assertEquals(2L, openedId)
