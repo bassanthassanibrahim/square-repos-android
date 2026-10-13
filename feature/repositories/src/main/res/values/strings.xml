@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="repos_title">Square repositories</string>
+    <string name="repos_bookmarked">Bookmarked</string>
     <string name="repos_scroll_to_top">Scroll to top</string>
 
     <string name="repos_empty_title">No repositories yet</string>
